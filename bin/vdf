@@ -39,6 +39,24 @@ sub bar_console {
 	);
 }
 
+sub bar_png {
+	my ($percent, $w, $h) = @_;
+	my $bar = GD::Image->new($w, $h);
+
+	my $black = $bar->colorAllocate(  0,   0,   0);
+	my $gray  = $bar->colorAllocate(127, 127, 127);
+	my $white = $bar->colorAllocate(255, 255, 255);
+
+	my $vwidth = sprintf("%d", ($w- 2) * $percent / 100);
+
+	$bar->rectangle(0, 0, $w - 1, $h - 1, $black);
+	$bar->filledRectangle(1, 1, $w - 2, $h - 2, $white);
+	$bar->filledRectangle(1, 1, $vwidth, $h - 2, $gray);
+
+	return $bar;
+}
+
+
 sub show_df_console {
 	my $mp_width = 0;
 
@@ -81,7 +99,42 @@ sub show_df_console {
 	return;
 }
 
-getopts('ac', \%opts);
+sub show_df_png {
+	my $spacing = 40;
+	my $h = @mounts * $spacing;
+	my $w = 220;
+	my $im = GD::Image->new($w, $h);
+
+	my $black = $im->colorAllocate(  0,   0,   0);
+	my $gray  = $im->colorAllocate(127, 127, 127);
+	my $lgray = $im->colorAllocate(250, 250, 250);
+	my $white = $im->colorAllocate(255, 255, 255);
+
+	$im->rectangle(0, 0, $w - 1, $h - 1, $gray);
+	$im->filledRectangle(1, 1, $w - 2, $h - 2, $white);
+
+	for my $i (0 .. $#mounts) {
+
+		my $mount = $mounts[$i];
+		my $percent = $mount->[4]->{'used'} * 100 / $mount->[4]->{'blocks'};
+
+		$im->string(gdSmallFont, 10, $spacing * $i + 2, $mount->[1],
+			$black);
+		$im->string(gdSmallFont, $w - 46, $spacing * $i + 2,
+			sprintf("%6s", format_size($mount->[4]->{'bavail'})), $black);
+		$im->copy(bar_png($percent, $w - 20, 10), 10, $spacing * $i + 15, 0,
+				0, $w - 20, 10);
+	}
+
+	open(my $out_fh, '>', '/tmp/vdf.png');
+	binmode $out_fh;
+	print $out_fh $im->png();
+	close($out_fh);
+
+	return;
+}
+
+getopts('acg', \%opts);
 
 open(my $mounts_fh, '<', '/proc/mounts');
 while (my $line = <$mounts_fh>) {
@@ -107,6 +160,9 @@ if (not $opts{'a'}) {
 
 if ($opts{'c'}) {
 	show_df_console();
+}
+elsif ($opts{'g'}) {
+	show_df_png();
 }
 
 __END__
