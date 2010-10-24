@@ -1,0 +1,136 @@
+#!/usr/bin/env perl
+## Copyright © 2010 by Daniel Friesel <derf@finalrewind.org>
+## License: WTFPL <http://sam.zoy.org/wtfpl>
+##   0. You just DO WHAT THE FUCK YOU WANT TO.
+use strict;
+use warnings;
+use 5.010;
+
+use autodie;
+
+use Filesys::Df;
+use GD;
+use Getopt::Std;
+use Term::ANSIColor;
+
+my @mounts;
+my %opts;
+
+sub format_size {
+	my ($bytes) = @_;
+	my @postfix = (' ', 'k', 'M', 'G', 'T');
+
+	while ($bytes > 1000) {
+		$bytes /= 1000;
+		shift @postfix;
+	}
+
+	return sprintf('%3.1f%s', $bytes, $postfix[0]);
+}
+
+sub bar_console {
+	my ($percent, $width) = @_;
+	my $vlen = sprintf("%d", $width * $percent / 100);
+
+	return sprintf(
+		'[%s%s]',
+		'=' x ($vlen),
+		' ' x ($width - $vlen),
+	);
+}
+
+sub show_df_console {
+	my $mp_width = 0;
+
+	foreach my $mount (@mounts) {
+		my $this_width = length($mount->[1]);
+		if ($this_width > $mp_width) {
+			$mp_width = $this_width;
+		}
+	}
+
+	my $h_format = "%-${mp_width}s %6s %6s %6s %4s%% %20s %s\n";
+	my $l_format = "%-${mp_width}s %6s %6s %6s %2.1f%% %20s %s\n";
+
+	print color('yellow');
+	printf(
+		$h_format,
+		qw{Mountpoint Size Used Avail Use},
+		q{},
+		q{Filesystem},
+	);
+	print color('reset');
+
+	foreach my $mount (@mounts) {
+
+		# $mount->[4]->{'per'} (provided by Filesys::Df) is inaccurate
+		my $percent = $mount->[4]->{'used'} * 100 / $mount->[4]->{'blocks'};
+
+		printf(
+			$l_format,
+			$mount->[1],
+			format_size($mount->[4]->{'blocks'}),
+			format_size($mount->[4]->{'used'}),
+			format_size($mount->[4]->{'bavail'}),
+			$percent,
+			bar_console($percent, 18),
+			$mount->[0],
+		);
+	}
+
+	return;
+}
+
+getopts('ac', \%opts);
+
+open(my $mounts_fh, '/proc/mounts');
+while (my $line = <$mounts_fh>) {
+	push(@mounts, [split(qr{ }, $line)]);
+}
+close($mounts_fh);
+
+foreach my $mount (@mounts) {
+	my ($device, $mountpoint, $type, $flags) = @{$mount};
+
+	my $df_ref = df($mountpoint, 1);
+
+	if (not defined $df_ref) {
+		next;
+	}
+
+	$mount->[4] = $df_ref;
+}
+
+if (not $opts{'a'}) {
+	@mounts = grep { $_->[0] !~ qr{ ^ ( (root|tmp)fs | none ) $ }x } @mounts;
+}
+
+if ($opts{'c'}) {
+	show_df_console();
+}
+
+__END__
+
+=head1 NAME
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=head1 EXIT STATUS
+
+=head1 CONFIGURATION
+
+=head1 DEPENDENCIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Copyright (C) 2010 by Daniel Friesel E<lt>derf@finalrewind.orgE<gt>
+
+=head1 LICENSE
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
