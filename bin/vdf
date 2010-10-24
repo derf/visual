@@ -83,7 +83,7 @@ sub show_df_console {
 
 getopts('ac', \%opts);
 
-open(my $mounts_fh, '/proc/mounts');
+open(my $mounts_fh, '<', '/proc/mounts');
 while (my $line = <$mounts_fh>) {
 	push(@mounts, [split(qr{ }, $line)]);
 }

@@ -1,0 +1,93 @@
+#!/usr/bin/env perl
+## Copyright © 2010 by Daniel Friesel <derf@finalrewind.org>
+## License: WTFPL <http://sam.zoy.org/wtfpl>
+##   0. You just DO WHAT THE FUCK YOU WANT TO.
+use strict;
+use warnings;
+use 5.010;
+
+use autodie;
+
+use GD;
+use Getopt::Std;
+use Term::ANSIColor;
+
+my %temperature;
+my %opts;
+
+sub get_temp {
+	my ($disk) = @_;
+
+	chomp(my $temp = qx{/usr/sbin/hddtemp -n SATA:/dev/${disk}});
+
+	if (length($temp) == 0 or $temp !~ qr{ ^ \d+ $ }x) {
+		$temp = undef;
+	}
+
+	$temperature{"$disk"} = $temp;
+}
+
+sub show_console {
+	foreach my $disk (sort keys %temperature) {
+
+		my $t = $temperature{"$disk"};
+		print colored("${disk}  ", 'reset');
+
+		given ($t) {
+			when (undef) { say "???" }
+
+			when ($_ <= 25) { say colored("${t}c", 'blue') }
+			when ($_ <= 40) { say colored("${t}c", 'green') }
+			when ($_ <= 50) { say colored("${t}c", 'yellow') }
+			default         { say colored("${t}c", 'red') }
+		}
+	}
+	return;
+}
+
+getopts('c', \%opts);
+
+opendir(my $disk_dh, '/sys/block');
+foreach my $disk (readdir($disk_dh)) {
+	if ($disk !~ qr{ ^ sd [a-z] $ }x) {
+		next;
+	}
+	open(my $cap_fh, '<', "/sys/block/${disk}/capability");
+	my $cap = <$cap_fh>;
+	close($cap_fh);
+	if ($cap ~~ [10, 12, 50, 52]) {
+		get_temp($disk);
+	}
+}
+closedir($disk_dh);
+
+if ($opts{'c'}) {
+	show_console();
+}
+
+
+__END__
+
+=head1 NAME
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=head1 EXIT STATUS
+
+=head1 CONFIGURATION
+
+=head1 DEPENDENCIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Copyright (C) 2010 by Daniel Friesel E<lt>derf@finalrewind.orgE<gt>
+
+=head1 LICENSE
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
