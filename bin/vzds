@@ -23,10 +23,10 @@ my $black  = $im->colorAllocate(  0,   0,   0);
 my $gray   = $im->colorAllocate(127, 127, 127);
 my $lgray  = $im->colorAllocate(191, 191, 191);
 my $white  = $im->colorAllocate(255, 255, 255);
-my $blue   = $im->colorAllocate(127, 127, 200);
-my $green  = $im->colorAllocate(127, 200, 127);
-my $yellow = $im->colorAllocate(200, 200, 127);
-my $red    = $im->colorAllocate(200, 127, 127);
+my $blue   = $im->colorAllocate(200, 200, 255);
+my $green  = $im->colorAllocate(200, 255, 200);
+my $yellow = $im->colorAllocate(255, 255, 200);
+my $red    = $im->colorAllocate(255, 191, 191);
 
 for my $i (1 .. $count) {
 
@@ -35,7 +35,7 @@ for my $i (1 .. $count) {
 	my $mday = strftime('%d', @time);
 	my $date = strftime('%m/%d', @time);
 	my $cur = $table->{ $date };
-	my $colour = $lgray;
+	my $colour = $white;
 	my $x_off = 40 * (($i - 1) % 7);
 	my $y_off = int(($i - 1) / 7) * 40;
 
@@ -48,7 +48,7 @@ for my $i (1 .. $count) {
 				39, $colour);
 		$im->string(gdSmallFont, $x_off + 2, $y_off + 2, "${day} ${mday}",
 				$black);
-		$im->rectangle($x_off, $y_off, $x_off + 40, $y_off + 40, $black);
+		$im->rectangle($x_off, $y_off, $x_off + 40, $y_off + 40, $gray);
 		next;
 	}
 
@@ -75,11 +75,11 @@ for my $i (1 .. $count) {
 			$black);
 	$im->string(gdSmallFont, $x_off + 6, $y_off + 20, sprintf('%02d:00',
 			$cur), $black);
-	$im->rectangle($x_off, $y_off, $x_off + 40, $y_off + 40, $black);
+	$im->rectangle($x_off, $y_off, $x_off + 40, $y_off + 40, $gray);
 
 }
 
-$im->rectangle(0, 0, $w - 1, $h -1, $black);
+$im->rectangle(0, 0, $w - 1, $h -1, $gray);
 
 open(my $out_fh, '>', '/tmp/vzds.png');
 binmode $out_fh;
