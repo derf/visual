@@ -59,7 +59,7 @@ sub bar_png {
 
 
 sub show_df_console {
-	my $mp_width = 0;
+	my $mp_width = 10;
 
 	foreach my $mount (@mounts) {
 		my $this_width = length($mount->[1]);
