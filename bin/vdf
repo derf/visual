@@ -69,7 +69,7 @@ sub show_df_console {
 	}
 
 	my $h_format = "%-${mp_width}s %6s %6s %6s %4s%% %20s %s\n";
-	my $l_format = "%-${mp_width}s %6s %6s %6s %2.1f%% %20s %s\n";
+	my $l_format = "%-${mp_width}s %6s %6s %6s %04.1f%% %20s %s\n";
 
 	print color('yellow');
 	printf(
