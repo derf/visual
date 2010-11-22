@@ -53,7 +53,7 @@ for my $i (1 .. $count) {
 		next;
 	}
 
-	if ($cur !~ /^ \d+ $/x) {
+	if ($cur !~ /^ \d+ ( \. \d+)? $/x) {
 		$im->filledRectangle($x_off + 1, $y_off + 1, $x_off + 39, $y_off +
 				39, $colour);
 		$im->string(gdSmallFont, $x_off + 2, $y_off + 2, "${day} ${mday}",
@@ -88,16 +88,18 @@ for my $i (1 .. $count) {
 			$colour);
 	$im->string(gdSmallFont, $x_off + 2, $y_off + 2, "${day} ${mday}",
 			$black);
-	$im->string(gdSmallFont, $x_off + 6, $y_off + 20, sprintf('%02d:00',
-			$cur), $black);
+	$im->string(gdSmallFont, $x_off + 6, $y_off + 20, sprintf('%02d:%02d',
+			$cur, ($cur - int($cur)) * 60), $black);
 	$im->rectangle($x_off, $y_off, $x_off + 40, $y_off + 40, $gray);
 
 	$text .= sprintf(
-		"%s%s    %02d:00 -> %02d:00\n",
+		"%s%s    %02d:%02d -> %02d:%02d\n",
 		strftime("%a %b %d", @time),
 		color('reset'),
-		$cur,
+		int($cur),
+		($cur - int($cur)) * 60,
 		$cur + 8,
+		($cur - int($cur)) * 60,
 	);
 
 }
