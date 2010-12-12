@@ -13,7 +13,7 @@ use Term::ANSIColor;
 
 my %opts;
 
-getopts('cg', \%opts);
+getopts('a:cg', \%opts);
 
 my $count = shift // 5;
 
@@ -23,16 +23,19 @@ my $table  = Simplestore::load($file);
 
 my ($w, $h) = (($count < 8) ? ($count * 40) : (7 * 40), ceil($count / 7) * 40);
 
-my $im = GD::Image->new($w, $h);
+my $alpha = $opts{'a'} // 0;
 
-my $black  = $im->colorAllocate(  0,   0,   0);
-my $gray   = $im->colorAllocate(127, 127, 127);
-my $lgray  = $im->colorAllocate(191, 191, 191);
-my $white  = $im->colorAllocate(255, 255, 255);
-my $blue   = $im->colorAllocate(200, 200, 255);
-my $green  = $im->colorAllocate(200, 255, 200);
-my $yellow = $im->colorAllocate(255, 255, 200);
-my $red    = $im->colorAllocate(255, 191, 191);
+my $im = GD::Image->new($w, $h);
+$im->saveAlpha(1);
+
+my $black  = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
+my $gray   = $im->colorAllocateAlpha(127, 127, 127, $alpha);
+my $lgray  = $im->colorAllocateAlpha(191, 191, 191, $alpha);
+my $white  = $im->colorAllocateAlpha(255, 255, 255, $alpha);
+my $blue   = $im->colorAllocateAlpha(200, 200, 255, $alpha);
+my $green  = $im->colorAllocateAlpha(200, 255, 200, $alpha);
+my $yellow = $im->colorAllocateAlpha(255, 255, 200, $alpha);
+my $red    = $im->colorAllocateAlpha(255, 191, 191, $alpha);
 
 my $text;
 

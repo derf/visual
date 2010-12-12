@@ -15,6 +15,7 @@ use Term::ANSIColor;
 
 my @mounts;
 my %opts;
+my $alpha;
 
 sub format_size {
 	my ($bytes) = @_;
@@ -43,10 +44,10 @@ sub bar_png {
 	my ($percent, $w, $h) = @_;
 	my $bar = GD::Image->new($w, $h);
 
-	my $black = $bar->colorAllocate(  0,   0,   0);
-	my $gray  = $bar->colorAllocate(127, 127, 127);
-	my $lgray = $bar->colorAllocate(191, 191, 191);
-	my $white = $bar->colorAllocate(255, 255, 255);
+	my $black = $bar->colorAllocateAlpha(  0,   0,   0, $alpha);
+	my $gray  = $bar->colorAllocateAlpha(127, 127, 127, $alpha);
+	my $lgray = $bar->colorAllocateAlpha(191, 191, 191, $alpha);
+	my $white = $bar->colorAllocateAlpha(255, 255, 255, $alpha);
 
 	my $vwidth = sprintf("%d", ($w- 2) * $percent / 100);
 
@@ -106,10 +107,10 @@ sub show_df_png {
 	my $w = 220;
 	my $im = GD::Image->new($w, $h);
 
-	my $black = $im->colorAllocate(  0,   0,   0);
-	my $gray  = $im->colorAllocate(127, 127, 127);
-	my $lgray = $im->colorAllocate(191, 191, 191);
-	my $white = $im->colorAllocate(255, 255, 255);
+	my $black = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
+	my $gray  = $im->colorAllocateAlpha(127, 127, 127, $alpha);
+	my $lgray = $im->colorAllocateAlpha(191, 191, 191, $alpha);
+	my $white = $im->colorAllocateAlpha(255, 255, 255, $alpha);
 
 	$im->rectangle(0, 0, $w - 1, $h - 1, $gray);
 	$im->filledRectangle(1, 1, $w - 2, $h - 2, $white);
@@ -135,7 +136,8 @@ sub show_df_png {
 	return;
 }
 
-getopts('acg', \%opts);
+getopts('a:cg', \%opts);
+$alpha = $opts{'a'} // 0;
 
 open(my $mounts_fh, '<', '/proc/mounts');
 while (my $line = <$mounts_fh>) {
@@ -155,9 +157,7 @@ foreach my $mount (@mounts) {
 	$mount->[4] = $df_ref;
 }
 
-if (not $opts{'a'}) {
-	@mounts = grep { $_->[0] !~ qr{ ^ ( (root|tmp)fs | none ) $ }x } @mounts;
-}
+@mounts = grep { $_->[0] !~ qr{ ^ ( (root|tmp)fs | none ) $ }x } @mounts;
 
 if ($opts{'c'}) {
 	show_df_console();
