@@ -13,7 +13,7 @@ use Term::ANSIColor;
 
 my %opts;
 
-getopts('a:cg', \%opts);
+getopts('a:cgt:', \%opts);
 
 my $count = shift // 5;
 
@@ -38,12 +38,15 @@ my $yellow = $im->colorAllocateAlpha(255, 255, 200, $alpha);
 my $red    = $im->colorAllocateAlpha(255, 191, 191, $alpha);
 
 my $text;
+my $start = time();
 
-getopts('cg', \%opts);
+if ($opts{'t'}) {
+	$start -= $opts{'t'} * (3600 * 24 * 7);
+}
 
 for my $i (1 .. $count) {
 
-	my @time = localtime(time + (3600 * 24 * $i));
+	my @time = localtime($start + (3600 * 24 * $i));
 	my $day = strftime('%a', @time);
 	my $mday = strftime('%d', @time);
 	my $date = strftime('%m/%d', @time);
