@@ -38,7 +38,9 @@ my $yellow = $im->colorAllocateAlpha(255, 255, 200, $alpha);
 my $red    = $im->colorAllocateAlpha(255, 191, 191, $alpha);
 
 my $text;
-my $start = time();
+my $start = time() - (3600 * 3);
+#                     ^^^^^^^^
+# Nerd daychange adjustment (3am makes more sense)
 
 if ($opts{'t'}) {
 	$start -= $opts{'t'} * (3600 * 24 * 7);
