@@ -13,7 +13,7 @@ use Term::ANSIColor;
 
 my %opts;
 
-getopts('a:cgt:', \%opts);
+getopts('a:cfgt:', \%opts);
 
 my $count = shift // 5;
 
@@ -122,4 +122,8 @@ if ($opts{'g'}) {
 	binmode $out_fh;
 	print $out_fh $im->png();
 	close($out_fh);
+}
+
+if ($opts{'f'}) {
+	exec('feh', '/tmp/vzds.png');
 }
