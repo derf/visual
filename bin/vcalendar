@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use 5.010;
+use autodie;
+
+use GD;
+use Getopt::Std;
+
+my %opts;
+
+getopts('a:cfgC:', \%opts);
+
+my $alpha = $opts{'a'} // 0;
+
+my $im = GD::Image->new(200, 40);
+$im->saveAlpha(1);
+
+my $fg = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
+my $bg = $im->colorAllocateAlpha(  0,   0,   0, 127);
+
+if ($opts{'C'}) {
+	$fg = $im->colorAllocateAlpha(split(qr{,}, $opts{'C'}), $alpha);
+}
+
+my @lines = split(/\n/, qx{calendar});
+
+if ($opts{'c'}) {
+	say join("\n", @lines);
+}
+elsif ($opts{'g'}) {
+	$im->filledRectangle(0, 0, 200, 40, $bg);
+
+	for my $i (0 .. $#lines) {
+		$lines[$i] =~ s{\t}{};
+		$im->string(gdSmallFont, 2, 2 + (10 * $i), $lines[$i], $fg);
+	}
+
+	open(my $out_fh, '>', '/tmp/vcalendar.png');
+	binmode $out_fh;
+	print $out_fh $im->png();
+	close($out_fh);
+}
+
+if ($opts{'f'}) {
+	exec('feh', '/tmp/vcalendar.png');
+}
