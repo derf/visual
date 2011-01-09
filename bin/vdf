@@ -125,7 +125,7 @@ sub show_df_console {
 }
 
 sub show_df_png {
-	my $spacing = 40;
+	my $spacing = 35;
 	my $h = @mounts * $spacing;
 	my $w = 220;
 	my $im = GD::Image->new($w, $h);
@@ -143,11 +143,11 @@ sub show_df_png {
 		my $mount = $mounts[$i];
 		my $percent = $mount->[4]->{'used'} * 100 / $mount->[4]->{'blocks'};
 
-		$im->string(gdSmallFont, 10, $spacing * $i + 7, $mount->[1],
+		$im->string(gdSmallFont, 10, $spacing * $i + 4, $mount->[1],
 			$black);
-		$im->string(gdSmallFont, $w - 46, $spacing * $i + 7,
+		$im->string(gdSmallFont, $w - 46, $spacing * $i + 4,
 			sprintf("%6s", format_size($mount->[4]->{'bavail'})), $black);
-		$im->copy(bar_png($percent, $w - 20, 10), 10, $spacing * $i + 20, 0,
+		$im->copy(bar_png($percent, $w - 20, 10), 10, $spacing * $i + 17, 0,
 				0, $w - 20, 10);
 	}
 
