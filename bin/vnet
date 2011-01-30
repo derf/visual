@@ -1,0 +1,109 @@
+#!/usr/bin/env perl
+## Copyright © 2010 by Daniel Friesel <derf@finalrewind.org>
+## License: WTFPL <http://sam.zoy.org/wtfpl>
+##   0. You just DO WHAT THE FUCK YOU WANT TO.
+use strict;
+use warnings;
+use 5.010;
+
+use autodie;
+
+use GD;
+use Getopt::Std;
+use Term::ANSIColor;
+use LWP::Simple;
+
+my %opts;
+my $alpha;
+my $share = "$ENV{HOME}/packages/visual/share";
+my ($ext_ip, $int_ip);
+
+sub get_ext_ip {
+	my $ext = get('https://derf.homelinux.org/cgi-bin/clientinfo/ip.cgi');
+	chomp $ext;
+	return $ext;
+}
+
+sub get_int_ip {
+	my $wlan = qx{ifdata -pa wlan0 2> /dev/null};
+	my $lan = qx{ifdata -pa lan 2> /dev/null};
+
+	chomp $wlan;
+	chomp $lan;
+
+	if (length($wlan)) {
+		return $wlan;
+	}
+	else {
+		return $lan;
+	}
+}
+
+sub show_net_png {
+	my ($w, $h) = (160, 32);
+	my $im = GD::Image->new($w, $h);
+	my $icon = GD::Image->newFromPng("${share}/network.png", 1);
+
+	my $black = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
+	my $bg    = $im->colorAllocateAlpha(255, 255, 255, 127);
+
+	$im->filledRectangle(0, 0, $w - 1, $h - 1, $bg);
+
+	$im->string(gdMediumBoldFont, 36,  0, get_ext_ip(), $black);
+	$im->string(gdMediumBoldFont, 36, 16, get_int_ip(), $black);
+
+	$im->copy($icon, 0, 0, 0, 0, 32, 32);
+
+	open(my $out_fh, '>', '/tmp/vnet.png');
+	binmode $out_fh;
+	print $out_fh $im->png();
+	close($out_fh);
+}
+
+sub show_net_console {
+	printf(
+		"int: %s\next: %s\n",
+		get_int_ip(),
+		get_ext_ip(),
+	);
+}
+
+getopts('a:cfg', \%opts);
+$alpha = $opts{'a'} // 0;
+
+if ($opts{'c'}) {
+	show_net_console();
+}
+elsif ($opts{'g'}) {
+	show_net_png();
+}
+
+if ($opts{'f'}) {
+	exec('feh', '/tmp/vnet.png');
+}
+
+__END__
+
+=head1 NAME
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=head1 EXIT STATUS
+
+=head1 CONFIGURATION
+
+=head1 DEPENDENCIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Copyright (C) 2010 by Daniel Friesel E<lt>derf@finalrewind.orgE<gt>
+
+=head1 LICENSE
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
