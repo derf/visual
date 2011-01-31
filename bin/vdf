@@ -164,21 +164,22 @@ $alpha = $opts{'a'} // 0;
 
 open(my $mounts_fh, '<', '/proc/mounts');
 while (my $line = <$mounts_fh>) {
-	push(@mounts, [split(qr{ }, $line)]);
-}
-close($mounts_fh);
-
-foreach my $mount (@mounts) {
-	my ($device, $mountpoint, $type, $flags) = @{$mount};
-
+	my ($device, $mountpoint, $type, $flags) = split(qr{ }, $line);
 	my $df_ref = df($mountpoint, 1);
 
 	if (not defined $df_ref) {
 		next;
 	}
 
-	$mount->[4] = $df_ref;
+	push(@mounts, [
+		$device,
+		$mountpoint,
+		$type,
+		$flags,
+		$df_ref
+	]);
 }
+close($mounts_fh);
 
 @mounts = grep { $_->[0] !~ qr{ ^ ( (root|tmp)fs | none ) $ }x } @mounts;
 
