@@ -19,7 +19,8 @@ my $share = $0;
 my ($ext_ip, $int_ip);
 
 sub get_ext_ip {
-	my $ext = get('https://derf.homelinux.org/cgi-bin/clientinfo/ip.cgi');
+	my $ext = get('http://derf.homelinux.org/cgi-bin/clientinfo/ip.cgi')
+	       // qq{?} ;
 	chomp $ext;
 	return $ext;
 }
