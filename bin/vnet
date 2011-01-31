@@ -11,7 +11,7 @@ use autodie;
 use GD;
 use Getopt::Std;
 use Term::ANSIColor;
-use LWP::Simple;
+use LWP::UserAgent;
 
 my %opts;
 my $alpha;
@@ -19,10 +19,19 @@ my $share = $0;
 my ($ext_ip, $int_ip);
 
 sub get_ext_ip {
-	my $ext = get('http://derf.homelinux.org/cgi-bin/clientinfo/ip.cgi')
-	       // qq{?} ;
-	chomp $ext;
-	return $ext;
+	my $ua = LWP::UserAgent->new(
+		env_proxy => 0
+	);
+	my $re = $ua->get('http://derf.homelinux.org/cgi-bin/clientinfo/ip.cgi');
+
+	if ($re->is_success()) {
+		my $text = $re->decoded_content();
+		chomp $text;
+		return $text;
+	}
+	else {
+		return qq{?};
+	}
 }
 
 sub get_int_ip {
