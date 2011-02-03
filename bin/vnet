@@ -55,12 +55,19 @@ sub show_net_png {
 	my $icon = GD::Image->newFromPng("${share}/network.png", 1);
 
 	my $black = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
+	my $white = $im->colorAllocateAlpha(255, 255, 255, $alpha);
 	my $bg    = $im->colorAllocateAlpha(255, 255, 255, 127);
+
+	my $ip_ext = get_ext_ip();
+	my $ip_int = get_int_ip();
 
 	$im->filledRectangle(0, 0, $w - 1, $h - 1, $bg);
 
-	$im->string(gdMediumBoldFont, 36,  0, get_ext_ip(), $black);
-	$im->string(gdMediumBoldFont, 36, 16, get_int_ip(), $black);
+	$im->string(gdMediumBoldFont, 37,  1, $ip_ext, $white);
+	$im->string(gdMediumBoldFont, 36,  0, $ip_ext, $black);
+
+	$im->string(gdMediumBoldFont, 37, 17, $ip_int, $white);
+	$im->string(gdMediumBoldFont, 36, 16, $ip_int, $black);
 
 	$im->copy($icon, 0, 0, 0, 0, 32, 32);
 
