@@ -19,6 +19,11 @@ my $share = $0;
 my ($ext_ip, $int_ip);
 
 sub get_ext_ip {
+
+	if (-d '/sys/class/net/ppp0') {
+		return qq{-};
+	}
+
 	my $ua = LWP::UserAgent->new(
 		env_proxy => 0
 	);
