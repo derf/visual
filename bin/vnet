@@ -68,11 +68,11 @@ sub show_net_png {
 
 	$im->filledRectangle(0, 0, $w - 1, $h - 1, $bg);
 
-	$im->string(gdMediumBoldFont, 37,  1, $ip_ext, $white);
-	$im->string(gdMediumBoldFont, 36,  0, $ip_ext, $black);
+	$im->string(gdMediumBoldFont, 37,  1, $ip_ext, $black);
+	$im->string(gdMediumBoldFont, 36,  0, $ip_ext, $white);
 
-	$im->string(gdMediumBoldFont, 37, 17, $ip_int, $white);
-	$im->string(gdMediumBoldFont, 36, 16, $ip_int, $black);
+	$im->string(gdMediumBoldFont, 37, 17, $ip_int, $black);
+	$im->string(gdMediumBoldFont, 36, 16, $ip_int, $white);
 
 	$im->copy($icon, 0, 0, 0, 0, 32, 32);
 
