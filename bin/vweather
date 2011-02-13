@@ -48,7 +48,7 @@ sub show_weather_console {
 }
 
 sub show_weather_png {
-	my ($w, $h) = (140, 64);
+	my ($w, $h) = (110, 64);
 	my $im = GD::Image->new($w, $h);
 
 	my $white  = $im->colorAllocateAlpha(255, 255, 255, $alpha);
@@ -72,9 +72,9 @@ sub show_weather_png {
 			last;
 		}
 
-		$im->string(gdMediumBoldFont, 10, $offset, $wday , $black);
-		$im->string(gdMediumBoldFont, 60, $offset, $low  , $blue);
-		$im->string(gdMediumBoldFont, 95, $offset, $high , $red);
+		$im->string(gdMediumBoldFont,  5, $offset, $wday , $black);
+		$im->string(gdMediumBoldFont, 42, $offset, $low  , $blue);
+		$im->string(gdMediumBoldFont, 77, $offset, $high , $red);
 
 		if ($dump) {
 			say "${share}/weather/${icon}";
@@ -82,7 +82,7 @@ sub show_weather_png {
 
 		if (-e "${share}/weather/${icon}") {
 			my $tmp = GD::Image->newFromPng("${share}/weather/${icon}", 1);
-			$im->copy($tmp, 40, $offset, 0, 0, 16, 16);
+			$im->copy($tmp, 22, $offset, 0, 0, 16, 16);
 		}
 	}
 
