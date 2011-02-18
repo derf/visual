@@ -48,8 +48,13 @@ sub show_weather_console {
 }
 
 sub show_weather_png {
-	my ($w, $h) = (110, 64);
+	my ($w, $h) = (200, 32);
 	my $im = GD::Image->new($w, $h);
+	my $line_height = 16;
+	my $offset_wday = 5;
+	my $offset_icon = $offset_wday + 20;
+	my $offset_low  = $offset_icon + 22;
+	my $offset_high = $offset_low + 2*7 + 4;
 
 	my $white  = $im->colorAllocateAlpha(255, 255, 255, $alpha);
 	my $blue   = $im->colorAllocateAlpha(  0,   0, 200, $alpha);
@@ -60,21 +65,25 @@ sub show_weather_png {
 	$im->filledRectangle(1, 1, $w - 2, $h - 2, $white);
 
 	for my $i (0..3) {
-		my $offset = $i * 16;
+		my $y_offset = ($i < 2 ? $i : ($i % 2)) * $line_height;
+		my $x_offset = ($i < 2 ? 0  : ($w/2 + 10));
 		my $day = $forecasts->[$i];
 
 		my $wday = substr($day->{'day_of_week'}, 0, 2);
-		my $low  = sprintf('%3dc', $day->{'low'});
-		my $high = sprintf('%3dc', $day->{'high'});
+		my $low  = sprintf('%2d', $day->{'low'});
+		my $high = sprintf('%2d', $day->{'high'});
 		my ($icon) = ($day->{'icon'} =~ m{ / ([^/]+) \. gif $ }x);
 
 		if (not defined $day) {
 			last;
 		}
 
-		$im->string(gdMediumBoldFont,  5, $offset, $wday , $black);
-		$im->string(gdMediumBoldFont, 42, $offset, $low  , $blue);
-		$im->string(gdMediumBoldFont, 77, $offset, $high , $red);
+		$im->string(gdMediumBoldFont, $x_offset +  $offset_wday, $y_offset,
+			$wday , $black);
+		$im->string(gdMediumBoldFont, $x_offset + $offset_low, $y_offset,
+			$low  , $blue);
+		$im->string(gdMediumBoldFont, $x_offset + $offset_high, $y_offset,
+			$high , $red);
 
 		if ($dump) {
 			say "${share}/weather/${icon}";
@@ -82,7 +91,7 @@ sub show_weather_png {
 
 		if (-e "${share}/weather/${icon}") {
 			my $tmp = GD::Image->newFromPng("${share}/weather/${icon}", 1);
-			$im->copy($tmp, 22, $offset, 0, 0, 16, 16);
+			$im->copy($tmp, $x_offset + $offset_icon, $y_offset, 0, 0, 16, 16);
 		}
 	}
 
