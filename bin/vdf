@@ -125,9 +125,16 @@ sub show_df_console {
 }
 
 sub show_df_png {
-	my $spacing = 35;
+	my $spacing = 32;
 	my $h = @mounts * $spacing;
-	my $w = 220;
+	my $w = 200;
+	my $offset_left = 5;
+	my $offset_top = 3;
+	my $offset_right = 5;
+	my $offset_free = $w - $offset_right - (6 * 6);
+	my $bar_width = $w - $offset_left - $offset_right;
+	my $bar_height = 10;
+	my $bar_top = $offset_top + 13;
 	my $im = GD::Image->new($w, $h);
 
 	my $black = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
@@ -143,12 +150,14 @@ sub show_df_png {
 		my $mount = $mounts[$i];
 		my $percent = $mount->[4]->{'used'} * 100 / $mount->[4]->{'blocks'};
 
-		$im->string(gdSmallFont, 10, $spacing * $i + 4, $mount->[1],
-			$black);
-		$im->string(gdSmallFont, $w - 46, $spacing * $i + 4,
+		$im->string(gdSmallFont, $offset_left, $spacing * $i + $offset_top,
+			$mount->[1], $black);
+
+		$im->string(gdSmallFont, $offset_free, $spacing * $i + $offset_top,
 			sprintf("%6s", format_size($mount->[4]->{'bavail'})), $black);
-		$im->copy(bar_png($percent, $w - 20, 10), 10, $spacing * $i + 17, 0,
-				0, $w - 20, 10);
+
+		$im->copy(bar_png($percent, $bar_width, $bar_height), $offset_left,
+			$spacing * $i + $bar_top, 0, 0, $bar_width, $bar_height);
 	}
 
 	open(my $out_fh, '>', '/tmp/vdf.png');
