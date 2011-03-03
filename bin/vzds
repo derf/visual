@@ -43,7 +43,7 @@ my $start = time() - (3600 * 3);
 # Nerd daychange adjustment (3am makes more sense)
 
 if ($opts{'t'}) {
-	$start -= $opts{'t'} * (3600 * 24 * 7);
+	$start -= $opts{'t'} * (3600 * 24);
 }
 
 for my $i (1 .. $count) {
