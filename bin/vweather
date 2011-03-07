@@ -7,6 +7,7 @@ use warnings;
 use 5.010;
 use autodie;
 
+use Derf::Visual::WeatherIcons;
 use GD;
 use Getopt::Std;
 use Term::ANSIColor;
@@ -15,7 +16,7 @@ use Weather::Google;
 my %opt;
 my $alpha;
 my $dump;
-my $share = $0;
+my $iconstore = Derf::Visual::WeatherIcons->new();
 
 my $weather = Weather::Google->new(
 	'Essen, Germany',
@@ -86,11 +87,11 @@ sub show_weather_png {
 			$high , $red);
 
 		if ($dump) {
-			say "${share}/weather/${icon}";
+			say $icon;
 		}
 
-		if (-e "${share}/weather/${icon}") {
-			my $tmp = GD::Image->newFromPng("${share}/weather/${icon}", 1);
+		if ($iconstore->exists($icon)) {
+			my $tmp = GD::Image->newFromPngData($iconstore->get($icon), 1);
 			$im->copy($tmp, $x_offset + $offset_icon, $y_offset, 0, 0, 16, 16);
 		}
 	}
@@ -106,17 +107,6 @@ sub show_weather_png {
 getopts('a:cdfg', \%opt);
 $alpha = $opt{'a'} // 40;
 $dump = $opt{'d'} // 0;
-
-if (-l $share) {
-	my $link = readlink($share);
-	$share =~ s{ [^/]+ $ }{}x;
-	$link  =~ s{ / bin / vweather $ }{}x;
-	$share .= "${link}/share";
-}
-else {
-	$share =~ s{ / bin / vweather $ }{}x;
-	$share .= '/share';
-}
 
 if ($opt{'c'}) {
 	show_weather_console();
