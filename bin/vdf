@@ -8,6 +8,7 @@ use 5.010;
 
 use autodie;
 
+use Derf::Visual 'GD_bar';
 use Filesys::Df;
 use GD;
 use Getopt::Std;
@@ -38,47 +39,6 @@ sub bar_console {
 		'=' x ($vlen),
 		' ' x ($width - $vlen),
 	);
-}
-
-sub bar_png {
-	my ($percent, $w, $h) = @_;
-	my $bar = GD::Image->new($w, $h);
-	my $l_int = 6;
-
-	my ($w_o, $w_w) = ($w * 0.8, $w * 0.9);
-
-	my $black   = $bar->colorAllocateAlpha(  0,   0,   0, $alpha);
-	my $gray    = $bar->colorAllocateAlpha(127, 127, 127, $alpha);
-	my $lgray   = $bar->colorAllocateAlpha(191, 191, 191, $alpha);
-	my $ok_b    = $bar->colorAllocateAlpha(220, 240, 220, $alpha);
-	my $ok_f    = $bar->colorAllocateAlpha( 59, 191,  50, $alpha);
-	my $wa_b    = $bar->colorAllocateAlpha(240, 240, 220, $alpha);
-	my $wa_f    = $bar->colorAllocateAlpha(191, 191,  50, $alpha);
-	my $cr_b    = $bar->colorAllocateAlpha(240, 220, 220, $alpha);
-	my $cr_f    = $bar->colorAllocateAlpha(191,   0,   0, $alpha);
-	my $white   = $bar->colorAllocateAlpha(255, 255, 255, $alpha);
-
-	my $vwidth = sprintf("%d", ($w- 2) * $percent / 100);
-
-	$bar->rectangle(0, 0, $w - 1, $h - 1, $gray);
-	$bar->filledRectangle(1, 1, $w   - 2, $h - 2, $cr_b);
-	$bar->filledRectangle(1, 1, $w_w - 1, $h - 2, $wa_b);
-	$bar->filledRectangle(1, 1, $w_o - 1, $h - 2, $ok_b);
-	$bar->filledRectangle(1, 1, $vwidth , $h - 2, $ok_f);
-
-	if ($vwidth > $w_o) {
-		$bar->filledRectangle($w_o, 1, $vwidth, $h - 2, $wa_f);
-	}
-
-	if ($vwidth > $w_w) {
-		$bar->filledRectangle($w_w, 1, $vwidth, $h - 2, $cr_f);
-	}
-
-	for my $i (1 .. $w / $l_int) {
-		$bar->line($i * $l_int, 1, $i * $l_int, $h - 2, $white);
-	}
-
-	return $bar;
 }
 
 
@@ -156,8 +116,15 @@ sub show_df_png {
 		$im->string(gdSmallFont, $offset_free, $spacing * $i + $offset_top,
 			sprintf("%6s", format_size($mount->[4]->{'bavail'})), $black);
 
-		$im->copy(bar_png($percent, $bar_width, $bar_height), $offset_left,
-			$spacing * $i + $bar_top, 0, 0, $bar_width, $bar_height);
+		$im->copy(GD_bar(
+				width => $bar_width,
+				height => $bar_height,
+				alpha => $alpha,
+				percent_filled => $percent,
+				lined => 6,
+			),
+			$offset_left, $spacing * $i + $bar_top, 0, 0, $bar_width,
+			$bar_height);
 	}
 
 	open(my $out_fh, '>', '/tmp/vdf.png');
