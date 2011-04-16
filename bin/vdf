@@ -135,7 +135,7 @@ sub show_df_png {
 	return;
 }
 
-getopts('Aa:cfg', \%opts);
+getopts('Aa:cfgi:', \%opts);
 $alpha = $opts{'a'} // 0;
 
 open(my $mounts_fh, '<', '/proc/mounts');
@@ -159,6 +159,10 @@ close($mounts_fh);
 
 if (not $opts{'A'}) {
 	@mounts = grep { $_->[0] !~ qr{ ^ ( (root|tmp)fs | none ) $ }x } @mounts;
+}
+if ($opts{'i'}) {
+	my @ignored = split(qr{,}, $opts{'i'});
+	@mounts = grep { not ($_->[1] ~~ [@ignored]) } @mounts;
 }
 
 if ($opts{'c'}) {
