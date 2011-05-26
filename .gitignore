@@ -1,4 +1,10 @@
+/_build
 /Build
-/_build/
-/blib/
+/blib
+/cover_db
 /lib/Derf/Visual/WeatherIcons.pm
+/MANIFEST
+/MANIFEST.bak
+/MANIFEST.SKIP
+/MANIFEST.SKIP.bak
+/MYMETA.yml

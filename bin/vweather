@@ -17,6 +17,13 @@ my %opt;
 my $alpha;
 my $dump;
 my $iconstore = Derf::Visual::WeatherIcons->new();
+my $icon_re = qr{
+	/
+	(?: weather_ )?
+	([^/]+?)
+	(?: -40 )?
+	\. gif $
+}x;
 
 my $weather = Weather::Google->new(
 	'Essen, Germany',
@@ -43,7 +50,7 @@ sub show_weather_console {
 		);
 
 		if ($dump) {
-			say $day->{'icon'};
+			say ($day->{'icon'} =~ $icon_re);
 		}
 	}
 }
@@ -73,7 +80,7 @@ sub show_weather_png {
 		my $wday = substr($day->{'day_of_week'}, 0, 2);
 		my $low  = sprintf('%2d', $day->{'low'});
 		my $high = sprintf('%2d', $day->{'high'});
-		my ($icon) = ($day->{'icon'} =~ m{ / ([^/]+) \. gif $ }x);
+		my ($icon) = ($day->{'icon'} =~ $icon_re);
 
 		if (not defined $day) {
 			last;
