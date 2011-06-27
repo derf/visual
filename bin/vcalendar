@@ -13,9 +13,11 @@ getopts('a:cfgC:', \%opts);
 
 my $alpha = $opts{'a'} // 0;
 
-my $im = GD::Image->new(200, 40);
+my $im = GD::Image->new(200, 80);
 $im->saveAlpha(1);
 
+my $white = $im->colorAllocateAlpha(255, 255, 255, $alpha);
+my $gray  = $im->colorAllocateAlpha(127, 127, 127, $alpha);
 my $fg = $im->colorAllocateAlpha(  0,   0,   0, $alpha);
 my $bg = $im->colorAllocateAlpha(  0,   0,   0, 127);
 
@@ -29,7 +31,19 @@ if ($opts{'c'}) {
 	say join("\n", @lines);
 }
 elsif ($opts{'g'}) {
-	$im->filledRectangle(0, 0, 200, 40, $bg);
+	$im->filledRectangle(0, 0, 200, 80, $bg);
+
+	my $used_height = @lines * 10;
+
+	if ($used_height > 72) {
+		$used_height = 72;
+	}
+
+	if ($used_height) {
+		$used_height += 8;
+		$im->filledRectangle(0, 0, 200, $used_height, $white);
+		$im->rectangle(0, 0, 200, $used_height, $gray);
+	}
 
 	for my $i (0 .. $#lines) {
 		$lines[$i] =~ s{\t}{};
