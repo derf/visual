@@ -33,6 +33,10 @@ if ($opts{'C'}) {
 
 run(\@ARGV, \undef, \$buf, \*STDERR);
 
+$buf =~ s/ä/a/g;
+$buf =~ s/ö/o/g;
+$buf =~ s/ü/u/g;
+
 my @lines = split(/\n/, $buf);
 
 if ($opts{'c'}) {
